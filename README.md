@@ -3,8 +3,6 @@ cs320-notes
 
 jan 3
 =====
-
-Jan 3
 1.1 The Stable Matching Problem
 ===============================
 
