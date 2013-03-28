@@ -4,7 +4,6 @@ cs320-notes
 jan 3
 =====
 
-
 Jan 3
 1.1 The Stable Matching Problem
 ===============================
@@ -65,7 +64,6 @@ Defining Patterns of an Algorithm
 
 jan 8
 =====
-Jan 8 
 
 
 Stable Matching Algo
@@ -237,7 +235,6 @@ Lemma: Given g = O(f), then f + g = THETA(f)
 
 jan 15
 ======
-Jan 15
 
 2.5 ASYMPTOTIC BOUNDS FOR SOME COMMON FUNCTIONS
 ===============================================
@@ -367,7 +364,6 @@ the for-loop is of order O(2^n) each subset requries at most O(n^2) time to chec
 
 jan 17
 ======
-jan 17
 
 2.6.6 ALGORITHMS THAT REQUIRE SUB-LINEAR TIME, IE O(LOG(N))
 ===========================================================
@@ -459,7 +455,6 @@ B = { n1,fi : i=1,2,...,m } and m > k.
 
 jan 22
 ======
-jan 22
 
 PROOF: that our algorithm produces the optimal set
 
@@ -564,7 +559,6 @@ Goal: We want to find a prefix code f, such that for a given text X and alphabet
 
 jan 24
 ======
-jan 24
 
 HUFFMAN'S ALGORITHM
 ======================
@@ -701,7 +695,6 @@ An undirected connected graph is called a tree if it does not contain any cycle.
 
 jan 29
 ======
-jan 29
 
 DATA STRUCTURES TO REPRESENT GRAPHS
 ===================================
@@ -772,7 +765,6 @@ Idea: Proof by induction on size of L.
 
 Feb 12
 ======
-Feb 12
 
 
 DIJKSTRAS RUNNING TIME
@@ -868,7 +860,6 @@ As edge e is to be added next, it is the cheapest edge connecting S and V\S.  Ac
 
 Feb 14
 ======
-Feb 14 
 
 Proof of Kruskal's aglorithm's correctness cont.
 
@@ -975,7 +966,6 @@ however MULTIPOP(j) is more complex since we can only pop what has already been 
 
 Feb 26
 ======
-Feb 26
 
 4.3 THE UNION-FIND DATA STRUCTURE
 =================================
@@ -1076,7 +1066,6 @@ Suppose G has n nodes and m edges.
 
 Feb 28
 ======
-Feb 28
 
 Divide and conquer algorithms. 
 ==============================
@@ -1133,7 +1122,6 @@ T(n) <= sum form i = 1 to log2(n) of c*n^2 sum from i = 1 to log2(n) of (1/2)i-1
 
 March 5
 =======
-March 5
 
 COUNTING INVERSIONS
 ===================
@@ -1257,7 +1245,6 @@ key 1. use a divide and conquer approach:
 
 March 7
 =======
-March 7
 
 5.2.2 (cont)
 ============
@@ -1350,7 +1337,6 @@ We need to decide how to choose the splitter, the overall goal is to get a worst
 
 March 12
 ========
-6.1 (cont) Finding the Median
 
 Goal: Do better than O(nlogn) 
 
@@ -1471,7 +1457,6 @@ Conclusion: QuickSort(S) has O(nlogn) exp running time.
 
 March 14
 ========
-7. DYNAMIC PROGRAMMING - not on midterm
 =======================================
 
 Key ideas:
@@ -1551,7 +1536,6 @@ traceback:
 
 March 21
 ========
-March 21
 
 Weighted JS (version 2)
 w(0) = 0
@@ -1685,7 +1669,6 @@ Time requirements:
 
 March 26
 ========
-March 26 
 
 7.3 Sequence Alignment
 ======================
@@ -1784,7 +1767,6 @@ Time requirements: O(lx*ly)
 
 March 28
 ========
-March 28
 
 8. NP-completeness 
 ==================

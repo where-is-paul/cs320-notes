@@ -28,7 +28,7 @@ for filename in txtfiles:
 
     name = filename.split('.')[0]
     readme.write(name + "\n" + len(name)*"=" + "\n") 
-    for line in ufile.readlines():
+    for line in ufile.readlines()[1:]:
         readme.write(line)
     readme.write("\n\n")
     ufile.close()
