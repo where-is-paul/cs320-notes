@@ -1,0 +1,90 @@
+March 7
+
+5.2.2 (cont)
+============
+
+Idea 2: (cont) given n points of set P, i.e. p = (x y) in R^2
+(1) divide P into two halves P1, P2, separting points by their x coordinate (this sorting takes O(nlogn) time)
+
+	Px = a sequence of the points in P sorted with respect to their x coordinate
+	Py = a sequence of the points in P sorted with respect to their y coordinate
+	Rememeber, for each point p in P, its rank in each of the above lists.
+
+(2) For P1 and P2 (recursively) identify the closest pair of points in each:
+	(p1_0, p1_1) = closest pair of points in P1
+	(p2_0, p2_1) = closest pair of points in P2
+
+	Compile lists P1x and P1y and likewise P2x and P2y which are the x and y sorted sequences of points from P1 and P2.
+	This requires O(n) time as we jsut have to extract entries from Px and Py respectively.
+
+(3) Merging Solutions:
+	We know the closest pair of points in P1 with distance = d(p1_0, p1_1) and likewise the same for P2 with distance = d(p2_0, p2_1) but we have not yet considered any pairs where one points is from P1 and the other from P2.
+
+	delta = min( d(p1_0, p1_1), d(p2_0, p2_1) ) = the minimum value found so far, not yet considering pairs spanning the two sets
+
+	Question: is there a pair of points p1 in P1 and p2 in P2 such that d(p1, p2) < delta.
+
+	Group work: how would you go about this?
+		my answer: check all pairs across the boundary with x-distance < the distance delta
+		laszy upper bound: check all points x to the left of the line, and x to the right.
+
+	(a) The above is what we ended up doing, maths:
+		If the distance d(p1', d2') < delta then p1' have to lie within delta of the dividing line.
+		Pf: let x' be the x-coordinate of the dividing line, p1' = (p1'x, p1'y) p2' = (p2'x, p2'y), then:
+			p2'x - x' <= p2'x - p1'x <= sqrt( (p2'x - p1'x)^2 + (p2'y - p1'y)^2 ) = d(p1', p2') < delta
+			p1'x - x' <= p1'x - p2'x <= sqrt( (p2'x - p1'x)^2 + (p2'y - p1'y)^2 ) = d(p1', p2') < delta
+			
+	(b) any two points in P1 (and likewise any 2 in P2) are at least a distance delta apart (else delta is the shortest distance between any pair within either P1 or P2).
+
+	Draw a grid of delta/2 widht/ height in the 'interesting area' (the region delta away from the dividing line).  Then every box of that grid contains at most 1 point (this because any two points within the same box would have a distance <= delta/sqrt(2) < delta).
+
+	(c) given one particular point p1' in P from the interesting area, how many boxes do we need to consider to find a potentially interesting p2' in P2?
+	Turns out we need only consider up to 10 boxes, ie since there is at most 1 point in each box this means we only need to consider up to 10 possible pairs.
+
+	(a), (b), (c) conclusion -> in order to check for a possible interesting pair (p1', p2') with d(p1', p2') < delta we:
+	loop over the y sorted list of points in P1 that are x-coordinate-wise at most delta away from the dividing line.  
+	For any such p1' compute the distance to at most 10 other points p2' in the y-sorted list P2.
+	If we find an interesting pair d(p1', p2') < delta we keep track of their minimum distance and report it once we are finished looping over elements in P1.
+	Worst case (all points of P1 in the interesting area) we have to do this for |P1| = n/2 points, ie the step is O(n).
+
+	Big conclusion: We are dealing with a divide and conquer algorithm whose recurrence relation is:
+		T(n) <= 2*T(n/2) + cn
+		ie. we know that its worst case running time is O(nlog(n)) (note this beats the O(n^2) straight forward brute force algorithm).
+
+	Reference: Pseudo-code, see p.230 (section 5.4) in the text book (but this would not appear on the text).
+
+
+6. RANDOMIZED ALGORITHMS
+========================
+
+Key idea: modify some divide and conquer algorithms to reduce their expected worst case running time.
+
+Implementation: Algorithms use one (or more) non-deterministic steps, ie. we need to consider expectation values for random variables.
+
+Typically, we will construct a non-deterministic ways to divide a given problem into several sub-problems (divide step)
+
+6.1 example 1) finding the median
+=================================
+
+Goal: Given a set of numbers S, |S| = n, S = {a1, ..., an}, find its median value.
+Assume: n numbers in S are distinct.
+Definition: The median value of such a set S is equal to the kth largest element in S, where:
+
+	k = {	(n+1)/2 if n odd
+			(n)/2 if n even
+
+We know we can fin the median by first sorting the set in O(nlogn) time and then picking the kth largest element from the sorted list.
+
+Goal: find a randomized algorithm which has an expected worst-case running time better than O(nlogn) 
+
+Idea 1: Think about a slightly more general algorithm, called Select( S, k ) that takes as input a set S of n numbers and returns the kth largest number (where k in {1, ..., n}).
+So, determining the median for S amounts to select( S, k ) 
+
+Strategy behind select(S,k)
+	(1)	Choose an element ai in S (the splitter)
+	(2) form sets:
+		S- = {aj in S, s.t. aj < ai}
+		S+ = {aj in S, s.t. aj > ai}
+	(3) Determine if S- or S+ contains the desired k-kth largest element in S and only continue with that set (in the recursion).
+
+We need to decide how to choose the splitter, the overall goal is to get a worst case running time of O(n).

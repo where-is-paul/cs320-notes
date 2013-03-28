@@ -1,0 +1,67 @@
+jan 29
+
+DATA STRUCTURES TO REPRESENT GRAPHS
+===================================
+
+Definition: the adjacency matrix of a graph G is a square matrix 
+	A = (a_ij) (i == row, j == columb)
+	of size | V |^2, where every entry a_ij is a number n in N_0 which corresponds to the number of edeges in G from v_i to v_j.
+
+	// key thing about her adj matricies is that she's counting num edges between verticies.
+
+
+GOAL: given a directed and weighted graph G = (V,E,s,t), a length function l, and a node (so-called start node) s' that has a path to every other noce in the graph.  Determine the shortest path from this node to any other node in the graph.
+
+KEY IDEA:
+	Step 1. Find a clever algorithm to calculate the shortest distance between s' and an node of G.
+	Step 2. Find the corresponding shortest paths connecting s' to any other node.
+
+	Start: L = {s'} d{s'} = 0
+
+	Next: find the shortest distance to unexplored nodes by using known shortests distances to explored nodes:
+
+		For each node s in V/J determine the shortest path within L from s' to a node u in J, followed by exactly one edge from u to v.
+
+		And set
+			d(v) = min (over u in L_v) { d(u) + l(v,u) }
+			where L_v is the subset of nodes in L with a single edge to v.
+
+			pointer p(v) = argmin (over u in L_v) { d(u) + l(u,v)} in S_v 
+			argmin beging the 'u' giving you the minimum distance
+
+
+Dijkstra's Algorithm:
+For each node u in the graph G, we store a distance d(u).
+Start: L = { s' } and d{ s' } = 0.
+
+While( L < V (strictly)) {
+		select a node v in V/L which has a direct edge to a node in L and where the distance:
+		d(v) = min(u in L_v) { d(u) + l(u,v) } is minimal
+		p(v) = argmin(u in L_v) { d(u) + l(u,v) }
+
+		merge v with L and assign it d(v)
+}
+
+As we keep track of the pointers p(v) for evert node v that is bing added to L, we can, at the end of the algorithm, recover the shortest paht P_v between s' and v be following teh poiners from p(v) back to s' and reversing the order of the encountered edges.
+
+Dijkstra's algorithm: proof of correctness
+Idea: Proof by induction on size of L.
+
+	Induction start: To begin with L = { s' } ie | L | = 1
+					The claim that we obtain the optimal distance d(s') = 0 for the start node is correct.
+
+	Induction step: k -> k+1
+					Suppose the claim is correct for L with |L| = k, k > 1, we need to show that the correctness of the claim for k+1 follows.
+
+	let v be the node that we add to L with |L| < k.  Let (u,v) be the final edge of the corresponding optimal path P_v.
+	We know that P_u is the optimal path for every u in L and d(u) the corresponding shortest distance.
+
+	Idea: We now consider any other path P'_v from s' to v and show that this path is at least as long as P_v.  In order to reach v, the path P'_v must leave L somewhere.
+
+	Define 
+	y: first node in the P'_v that is not in L
+	x: node just before y in P'_v, ie x in L
+
+	Suppose that P'_v is shorter than P_v.  If this were correct then the algorithm would have added node y to L via the edge (x,y) in iteration k+1 rather than adding node v.  as this did not happen, we can conclude that
+		d(y) > d(v) which imples that P'_v is longer than P_v. 
+

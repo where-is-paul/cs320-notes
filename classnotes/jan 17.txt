@@ -1,0 +1,89 @@
+jan 17
+
+2.6.6 ALGORITHMS THAT REQUIRE SUB-LINEAR TIME, IE O(LOG(N))
+===========================================================
+
+example.  supposed we are given an array of n integers already sorted bumbers.  the task is to find out if a given number b is stored in the list or not.
+
+Binary search -> log(n) time
+
+Algorithm
+	If p is smaller than the smallest entry of the array or lager than the largest entry, it cannot be part of hte array.
+
+	Else: proble the middle entry of the array.  If p=q we are dne.
+	if p < q, we probe the remaining array to the left of q.
+	if p > q, we probe the remaining array to the right of q.
+
+
+At every step of the algorithm, we are halving the length of the remaining interval.  after k steps we have an interval (1/2)^k * n in siace.  If we want this interval length to be on constant size, for real pos C, we need the following number of steps:
+
+(1/2)^k * n = C <--> n = C * 2^k <--> lg(n) = lg(C) + k
+
+ie for C = 1, k = lg(2)
+
+We require O(lg(n)) steps until we can finish the task in constant time.
+
+2.6.7 ALGORITHMS THAT REQUIRE O(N LOG(N)) TIME
+=============================================
+
+example. given a set S which contains an even number of numbers that we want to sort.
+
+idea: parition S into two distinct sub-sets, S1 and S2 of size n/2 each, sort the numbers in each subset and then recombine the sorted lists.  (see 2.6.1) Apply recursively.
+
+Size of problem in layer n:
+cn
+2 * (cn/2)
+4 * (cn/4)
+etc.
+
+(decision tree)
+
+so size of layer is constant, so work per layer should be consant, and we just need that times the number of layers, which there are log(n) of.
+
+Let T(n) denote the worst-running time of the recursive algorithm, we have:
+	T(n) <= 2*T(n/2) + O(n), recursively
+
+2*[ 2*[ 2*T(n/8) + O(n/4) ] + O(n/2) ] + O(n)  ~= n log(n) times coolcool
+
+The recursive algorithm requires O(nlog(n)) time as we have O(log(n)) layers each requiring O(n) time, see 2.6.1.
+
+
+3. GREEDY ALGORITHMS
+====================
+
+Attempt of a definition: An algorithm is called greedy if the final outcome of the algorithm is retrieved via small steps, where each step aims to optimize based on the locatal information at that time.
+
+3.1 INTERVAL SCHEDULING
+=======================
+
+problem: Given a set S of intervals N, ie S = { (si, fi) : n = 1,2,..,N, si < fi }
+
+task: Find a subset T <= S such that: 
+	no pair of intervals overlap, ie.
+		for all pairs i,j we have fi < sj or fj < si
+	then T is called a compatable set of intervals
+
+	there is no other compatable set T' larger than T.
+
+Definition: R = set of intervals in S that have not yet been considered
+			A = set of selected intervals of S
+
+Interval scheduling algorithm #1:
+	Set R = S, and A is empty
+
+	while R is not empty:
+		choose interval i in R whose fi is the smallest
+		add i to A
+		remove all intervals in R that are incompatible with endpoint i
+
+Properties of this algorithm: correctness
+Claim: the algorithm returns a compatable set of intervals A <= S.
+this follows directly from the algorithm, the bit where we remove conflicts
+
+Theorem: The algorithm returns an optimal sub-set A <= S.
+
+Proof: (by contradiction)
+assume that the sub-set A <= S that the algorithm returns is not optimal, ie. that there is another sub-set B <= S of compatible intervals that is strictly larger than A.  In other words:
+
+A = { ni,fi : i=1,2,...,k }
+B = { n1,fi : i=1,2,...,m } and m > k.

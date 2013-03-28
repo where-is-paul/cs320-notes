@@ -1,0 +1,97 @@
+Feb 26
+
+4.3 THE UNION-FIND DATA STRUCTURE
+=================================
+
+GOAL: Define a data structure which supports the following operations:
+	(a) find(x) returns name of set to which element belongs.  so, find(x) =/= find(y) implies that x and y belong to disjoint sets.
+	(b) union (A, B): operation takes two sets, A and B, as input and returns their union.
+	(c) make Union Find (S): operation takes a set S as input and creates a union-find.
+
+Ideas: For (a) to (c) we could be using a tree like data structure, where every node v corresponds to an element of the corresponding set S, ie v in S, and where every node has a pointer which points to the node after which the set S is named.
+
+ex. S = { i, j, x, y }, pick j as name for the set S.
+
+			j (points to self)
+		  ^  ^
+		 /    \
+		x      y
+		^
+		 \
+		  i
+
+here calling find(x) would return j.
+
+Ideas: (cont) If we are dealing with a set S of size |S| = n, then find(x) for x in S takes at most O(n) as we need to follow at most n pointers.
+
+For each node also remember the size of the corresponding set.
+ie at each node in the above tree we would write, "x, n" instead of just x. where n is the size of the set.
+
+ex. A = { v, w, s, y }, v is the name of A, and we also have set B = { u, x, z } name of B is u
+
+		   v,4 (points to self)					u,3 (points to self)
+		  ^  ^								   ^ ^
+		 /    \								  /   \
+		w,?    y,?							 x,?   z,?
+		^
+		 \
+		  s,?
+
+CONVENTION: name union after the larger of the two sets, flip coin if equal.  
+
+			  __________________________________
+		   	 /									|
+			v									|   
+		   v,7 (points to self)					u,3  (now points to the root of the larger set)
+		  ^  ^								   ^ ^
+		 /    \								  /   \
+		w,?    y,?							 x,?   z,?
+		^
+		 \
+		  s,?
+
+Note: we only update the the counter of the root node!  The other's have not been updated yet.
+Note: take O(1) time to execute the union since only updating 3->7 at the root node
+
+(c) executing make union find (S) for |S| = n requires O(n) time as we need to create a separate union find structure for every x in S.
+
+ex. S = { x, y, z } would yield:
+	x (points to self), y (points to self), z (points to self)
+	(I think she means you make n disjoint little trees)
+
+(a) Revisit the time requirement for find(x), GOAL: can we do better than O(n)?
+	Hints: realize what union (A, B) does
+	consider how often you can make a call to union(A,B) if dealing with n elements only.
+
+	Idea: Realize that the cost of find(x) is:
+	- equal to the number of pointers that it takes to reach the node after which the set is named.  
+	- This in turn, is equal to the number of times that the set changed it's name 
+	- renaming a set however only happens if we at least double it's size, so if the initial size of the set x belongs to is 1, and the final size n, we can have had at most 2^k = n ie k = log(n) doubling's of the set size.  Hence, we have at most log(n) pointers to follow to find the node after which the final set is named.
+	Conclusion: find(x) takes only O(log(n)).
+
+Can we do even better?  Consider calling find(x) multiple times for the same x.  After the first execution of find(x), we already know the name of the set containing x.  The same applies to all nodes that we encounter on the path.  If we reset the correspoding pointers to point directly to node x, we can accelerate the future find-commands.  One can show that find(x) can be done in even better time than O(log(n)) <= this is called path compression.
+
+4.4 IMPLEMENTING KRUSKALL'S ALGORITHM USING A UNION-FIND DATA STRUCTURE
+=======================================================================
+
+Reminder: start with sub-graph G' containing only the isolated nodes of G. [
+		  make union find for set of nodes: O(n)]
+
+		  While the number of edges in G' < |V| - 1:
+		  	of all edges that have not yet been added to G', pick the edge e with
+		  	lowest cost(e).
+
+		  	add edge e to G' unless it create a cycle in G'.
+
+Suppose G has n nodes and m edges.  
+	(1) sorting of edges in G by cost requires O(mlog(m)) time.
+		we have at most 1 edge between any 2 nodes (b/c graph undirected) in G, hence, m < n^2
+		so we may rewrite the above as O(mlog(n)) time.
+
+	(2) store each of the conneted components of the emerging subgraphh G' in a separate union-find data structure.  when an edge e = (v,w) is considered to be added to G', we execute find(v) and find(w) to check if find(v) = find(w), in which case these two nodes would already belong to the same componenet of G'.  Else, if find(v) =/= find(w) add else e to G', ie execute a corresponding union-command.
+
+	Throughout the algorithm we have:
+	at most 2m find operations at a cost of O(log(n)) each as we are adding at most m edges.
+	at most n-1 union operations at a cost of O(1) each.
+	-> overall the algorithm requires O(mlog(n)) time.
+

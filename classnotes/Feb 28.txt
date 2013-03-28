@@ -1,0 +1,54 @@
+Feb 28
+
+Divide and conquer algorithms. 
+==============================
+
+Deriving upper bounds for the worst-case running times. 
+
+Divide input into several parts (usually of equal size), solve the problem for each part in a recursive fashion and finally combine partial solutions into one overall solution. 
+
+Use recurrence relation that expresses the running time recursively in terms of running times for smaller instances. 
+
+Example 1: Generic algorithm 
+divide input of size n into two parts of n/2 each
+solve problem for each part recursively
+combine partial solutions into overall solution which requires linear time
+
+Define T(n) = worst case running time of an algorithm for input size n. For the above algorithm, assume that n is a power of 2. 
+
+Then we have T(n) <= c*n + 2T(n/2). 
+
+How many levels k do we need until each subproblem has size 1? Lg(n). 
+What is the total size of the problem, i.e. sum of all the subproblems, at each level k? n. 
+
+Just from knowing the mergesort algorithm, we know that the overall running time of this algorithm is nlg(n). Since we need linear time for each “combination”, we can simply take the product of the # of levels k and the total size at each level, and arrive at our final answer. 
+
+To do this more formally for any problem with the recurrence relation T(n) <= q*T(n/2) + cn, we consider the cases where q = 1, q = 2, and q > 2. 
+
+When q = 2, we have 2^k problem instances, and we can solve this just like with mergesort. 
+
+When q > 2, q in N, at each level k we have q^k subproblems, and each subproblem has size n/2^k. Hence, the total work required at level k is c*q^k *(n/2^k), and since we need log2(n) levels, then we have:
+T(n) <= q*T(n/2) + c*n <= sum from i = 1 to log2(n) of (q/2)i-1*n*c, which we can simplify to:
+T(n) <= c*n(1-(q/2)^(log2(n)))/(1-(q/2))
+T(n) <= c*n(q/2)^(log2(n))/(q/2-1)
+We can then use:
+a^log2(b) = 2^(log2(b)*log2(a)) = b^(log2(a)), so we simplify:
+<= c*n(n^log2(q/2))/(q/2-1)
+= (c*n*n^(log2(q)-1))  /(q/2-1)
+Now, c/(q/2-1) is constant as it does not depend on n [note we have q/2 > 1 as q > 2], so we can then say that this is O(n^(log2(q)))
+
+To summarize: Any function T(n) satisfying the recurrence relation we mentioned previously for q > 2 is upper bounded by O(n^(log2(q))). 
+
+Case 3: q = 1. What changes w.r.t. case 1 and case 2? 
+Well, at each level k, we have a single subproblem of size n/2^k. Hence, the total amount of work required at level k is n*c/2^k. Need log2(n) levels to reduce the problem size to 1. 
+
+We can then do a bunch of algebra:
+= c*n sum from i = 0 to log2(n)-1 of (1/2)^i, which we can then represent as a geometric sum, which leads to the upper bound, as desired, of c*n*2(1-1/n) <= 2cn  O(n) is an upper bound. 
+
+
+How about a recurrence relation of the form:
+T(n) <= 2*T(n/2) + c*n^2. 
+What is the worst case running time O(n)? 
+We require c*n^2 /2^k time per level k in total. Hence, our total work can be calculated as:
+
+T(n) <= sum form i = 1 to log2(n) of c*n^2 sum from i = 1 to log2(n) of (1/2)i-1. Which then results in, after a bit of algebra, <= 2cn^2 – 2cn <= 2cn^2 = O(n^2). 

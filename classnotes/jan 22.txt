@@ -1,0 +1,101 @@
+jan 22
+
+PROOF: that our algorithm produces the optimal set
+
+IDEA: proof by contradiction, we will assume our algorithm produced set A
+	A = { si, fi | i in {a1, a2, ... , ak}} k < n
+while there exists a set B:
+	B = { si, fi | i in {b1, b2, ... , bm}} with k < m < n
+So B is better than A.
+
+Lemma: Let the sequence of interval indicies in A ie. a1, a2, ... ak, correspond to the order in which these intervals are added to  in the algorithm.  Let the sequence of interval indicies in B, ie. b1, b2, ... bm, correspond to the natrual left to right order.
+
+	Then for indicies r <= p -> f(ar) <= f(bp) where r in { a1, a2, ... ak } and p in { b1, b2, ..., bm }
+
+Proof by induction:
+	Base Case: The statement f(a1) <= f(bp), for p in { b1, b2, ..., bm } is correct as the algorithm picks as its first interval the one with the smallest end-point.
+
+	Inductive assumption: (r-1) -> r
+	Assume correctness of the statement for (r-1) and, based on this, we will show correctness of the statement for r.
+
+	Given f(a_r-1) <= f(b_r-1) and that B is a compatable set and it's indicies are ordered from left to right ie f(b_r-1) < s(br) so we conclude that f(a_r-1) < s(br).
+	Because of this, interval (s(br), f(br)) is in the set R of intervals that are still available.  when the algorithm selects (s(ar), f(ar)).  As the greedy algorithm selects the leftmost end-point, we get f(ar) <= f(br), ie it picks that interval of B's or an even better one.
+
+PROOF OF THEOREM (continued):
+	Choose the same indicies ordering for A and B as in the previous lemma.  Remember, we assume k < m.  According to the lemma, this implies that
+		f(a_k) <= f(b_k) < s(b_k+1)
+			(an interval b_k+1 must exist in B, because k<m, ie. there has to be at least k+1 intervals in B)
+
+		This implies that the set R in the algorithm was not empty when the algorithm terminated and returned A.  This is a contradiction to k < m above.  So, k >= m holds and this implies that A was optimal after all. 
+
+
+WORST CASE RUNNING TIME OF THE ALGORITHM: (see prev day for def)
+
+Claim 1: the worst-case running time is O(n^2).
+Proof: The while loop requires O(n) steps and the statement within the while requires at most O(n) steps, ie. overall we have O(n^2).
+
+speed up: keep all your things sorted why would this even not already be the case you fool.
+
+Algorithm: A = the empty set, R = S,
+	sort R by increasing finishing time.  (this takes O(nlogn))
+	xmax = -inf
+	For each interval i in R {
+		if (s(i) > xmax){
+			add interval i to A
+			xmax = f(i)
+		}
+		return A
+	}
+
+Note that the outer loop is still n, but the inside is fixed time now, so the whole thing is O(nlogn) just from the sorting.
+
+Overall the algorithm requires O(nlogn).  the sorting and selecting only things further right than the previous rightmost interval ensure that we end up with a list of compatable intervals in A.
+
+3.2 APPLICATONS OF GREEDY ALGORTITHMS
+
+3.2.1 DATA COMPRESSION
+
+Goals: given a string X over some alphabet, we want to replace each character in it by a sequence of bits so that:
+	The resulting string is as short as possible
+	we can recover the original string X from the string of bits.
+
+Example. X = abacbaada S = { a, b, c, d }
+Brute force: a -> 00, b -> 01, c -> 10, d -> 11
+then we have A = 000100100100001100
+
+Def: a fixed length code maps all elelemnts of S to a bit-string of the same length.
+
+Given an alphabet S with K = |S| elements, how long does a fixed-length code have to be to encode this?
+
+Answer: We can encode 2^m = k characters using bitstrings of m bits, so we require ciel(lg(S)) bits in each string to encode S distinct characters.
+
+Def: a variable length code maps characters from S to strings of bits of variable length.
+
+Example. X = abacbaada S = { a, b, c, d }
+a -> 0, b -> 10, c -> 110, d -> 111
+then A = 010011010001110
+
+Potential Problem: Decoding becomes ambiguous if the bit string of one character is the prefix of the bit string of another character.
+
+Definition: A prefix code for an alphabet S is a function f that maps every element in S to a bit-string such that for all x,y in S, x =/= y, f(x) is not a prefix of f(x).
+
+Decoding using a prefix-code:
+	Read bit-string of X from the start until an encoding f(x) for some x in S is found, then we may translate this back into X and continue until the end of the bit-string is reached. 
+
+Visualization: (see prevs example)
+
+						. <-- root node, decoding begins
+					 0 / \ 1
+					 A     .
+					 	0 / \ 1
+					 	B    .
+					 	  0 / \ 1
+					 	  D     C  
+
+					 	  Note that you can place any letter everywhere the number of them is what decides the max length of these strings.  So we are free to pick the shortest strings for the most common characters.
+
+Assume in the following: We may need stirng X to determine the frequency F (0<=F<=1) of each element x in S.
+
+Goal: We want to find a prefix code f, such that for a given text X and alphabet S that the length of the text,
+	L = SUM_{alphabet} F(ci) * |f(ci)|  <-- frequency of letter times size of letter string for 										all letters = total length.
+

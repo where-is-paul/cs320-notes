@@ -1,0 +1,134 @@
+jan 24
+
+HUFFMAN'S ALGORITHM
+======================
+
+GIVEN: string X of characters S and frequencies f(x), for all x in S
+GOAL: determine an optimal prefix code p.
+
+while not through with alphabet: 
+
+	if we have |S| = 2:
+		choose 0 to encode one character and 1 for the other
+	else: 
+		we identify y* and z* to be the 2 characters with the lowest frequency
+		define a new alphabet S' by removing y* and z* from S replacing with w (frequency(w) = frequency(y*) + frequency(z*))
+		recursively construct a prefix code for S' with binary tree T'
+
+		define a prefix code for S as follows:
+			Start with T'
+			take the leaf labelled w and add y* and z* as children
+
+
+Definition: The prefix code thus determined is called Huffman's code
+
+Example:
+
+S = { a, b, c, d, e } and some string X with frequencies: 
+	f(a) = 0.32, f(b) = 0.25, f(c) = 0.20, f(d) = 0.18, f(e) = 0.05
+
+
+So first z* and y* are e and d, so replace with w, f(w) = 0.23
+	
+	w
+   / \
+  e   d
+
+ We have { a, b, c, w } then z* and y* are c and w, so replace with m, f(m) = 0.43
+
+ 	  m
+ 	 / \ 
+ 	w   c
+   / \
+  e   d
+
+ We have  { a, b, m } now z* and y* are a and b, so replace with n, f(n) = 0.57
+
+ 	  m
+ 	 / \ 
+ 	w   c
+   / \
+  e   d
+
+    n
+   / \
+  a   b
+
+  We have { n, m } so the if clause applies and we define n = 0, m = 1
+
+  	     k
+  	    / \
+  	   /   \
+   	  m     n
+ 	 / \   / \
+ 	w   c a   b
+   / \
+  e   d
+
+apply 1's and 0's to each branch, and the path down to any leaf then specifies a prefix code.
+
+Note: the optimal prefix code is not unique (usually), because the two edges underneath each node in he correpsonding tree can be labelled 0 (left) 1 (right) or vice versa.
+
+Claim 1: There is an optimal prefix code in which the two characters with the lowest frequency have encodings differing only in the last bit.
+
+Proof: ommitted. see class notes.
+
+Definition: The length of a prefix code p for string X, alphabet S and frequencies f(x) for all x in S, is defined as:
+	SUM f(xi)|p(xi)| <--- the sum over all alphabet chars of their length * frequency in string
+
+Definition: The length of tree T for encoding p:
+	length(T) = SUM f(xi)|p(xi)|  <--- sort of total path length weighted by frequencies
+
+Claim 2: Given a prefix tree T that satisfies claim 1 where the two letters with the lowest frequency are neighbouring leaf nodes.  If we remove the leaves of x and y and replace their parent node by w with freqrency f(w) = f(x) + f(y), then we obtain a new tree T' and alphabet S' with
+	length(T') = length(T) - f(w)
+
+NOTE: parent node is already as you say sans any replacing, however it does become a leaf node and so enter into our sum.  So really this should read remove x, y the lowest 2 frequency dudes.
+
+Proof: length(T) = SUM_S f(xi)|p(xi)| = SUM_Snotxy f(xi)|p(xi)| + f(x)|p(x)| + f(y)|p(y)|
+		           (pulling out x and y, the lowest 2)
+				 = SUM_Snotxy f(xi)|p'(xi)| + ( f(x)+f(y) )|p'(w)+1| by *
+				   (sum the same for all non xy bits switch to ')
+				 = SUM_S'f(xi)|p'(xi)| + f(w)
+				 = length(T') + f(w) = length(T)
+
+
+* |p(x)| = |p(y)|
+  = |p(w)+1|
+  = |p(w')+1|
+
+
+Theorem: Huffman's algorithm generate an optimal prefix code.
+Proof: By contradiction, Supposed the algorithm produces a suboptimal prefix code with corresponding tree T and suppose that S with |S| > 2.  There is an optimal tree z such that the length of this optimal tree z, st. length(z) < length(T), where the two letters z and y with lowest frequency are sibilings (claim 1).  Replace the parent node of x and y with w such that 
+f(w) = f(x) + f(y) in both z and T and alphabet S.  We thus get new trees z' and T' and a new alphabet S' such that (claim 2):
+	length(T') = length(T) - frequency(w)
+	length(z') = length(z) - frenquency(w)
+
+becuase length(z) < length(T) (by assumption, she says claim 1), we have length(z') < length(T') which contradictions the optimality of T' as a prefix code of S'.  
+
+(Except no iductive assumption was made here seems to be a mistake?)
+
+3.2.2 FINDING SHORTEST PATHS IN GRAPHS
+======================================
+
+Assuption: We are dealing with directed graphs
+Definitions: A graph G = ( V, E, s, t) consists of 2 sets V (verticies or nodes) and E (edges) and two mapping functions s: E -> (source) and t: E -> V (target).
+
+S(e) in V ------- e, l(e) ------> T(e) in V
+
+A graph is finite if V and E are finite.  A weighted graph (G, l) is a graph G = ( V, E, s, t) with a function l: E->R^+ (called length).  Two nodes in a graph are adjacent if there is an edge e connecting them.
+
+A path p of m in N edges in a graph G is an m-tuple = (e1, ..., em ) of edges e in E, such that t(ej) = s(ej+1) for all j in { 1, ..., m-1 }.  The source and target of path p are s(p) = s(e1) and t(p) = t(em) and p is said to stat in s(p) and finish in t(p).
+
+This definition doesn't fit with the above, but who cares!  A path of 0 edges is just the node  s(p) = t(p) = p in V.
+
+The set of paths of m in N edges in G is called G^m.  
+If G is a weighted graph, l(p) = SUM_m l(ei) is the length of path p.  
+A simple path is one in which every node occurs at most once.
+
+A simple cycle is a path that starts and ends at the same node, where every edge appears at most once except for the start/end nodes which appear exactly twice.
+
+A graph is called undirected if every edge from a to b has a corresponding edge from b to a of the same length, otherwise the graph is directed.
+
+An undirected graph is connected if there is a path between any two nodes in the graph.
+
+An undirected connected graph is called a tree if it does not contain any cycle.  (you can comb a tree)

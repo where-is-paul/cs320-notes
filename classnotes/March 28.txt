@@ -1,0 +1,65 @@
+March 28
+
+8. NP-completeness 
+==================
+
+So far: Have considered a range of problems that can be solved efficiently, ie. where algorithms exist that run in polynomial time to solve the problem.
+
+Motivation: If we do not happen to know an efficient alg for sorting a given problem, this does not imply that such an algorithm does not exist.
+
+Question: Can we come up with a meaningful way to categorize difficult problems according to their difficulty?
+
+Answer: YES (to some extent)
+
+Definition: We can define the class of NP-complete problems as the set of those difficult problems for which:
+	- no polynomial time algorithm is know to solve any of them
+	- but which are of similar difficulty in the sense that if we know an efficient algorithm to solve one of the problems then tis would allow us to devise efficient algorithms to solve all the problems.
+
+8.1 Polynomial time reductions
+==============================
+Goal: We want to rank comparitively difficult problems via pairwise comparisons (eg. problem X is as least as difficult to solve as problem Y)
+
+Definition: Given two problems X and Y, we say that Y is polynomial time reducible to problem X (write Y <=p X) if arbitrary instances of Y can be reduced using:
+	- a polynomial number of standard computational steps
+	- a polynomial number of calls to the algorithm that solves X.  We then say, X is at least as hard to solve as problem Y with respect to polynomial time.
+
+Theorem 1: given 2 problems X and Y with Y <=p X, if X can be solved in polynomial time then Y can also be solved in polynomial time.
+
+Proof: Because of Y <=p X any instance of Y can be solved by a polynomial number of default computational steps plus a polynomial number of calls to an efficient (ie. polynomial time) algorithm to solve X.  Hence we can solve Y in polynomail time.
+
+Theorem 2: Given two problems X and Y with Y <=p X.  If Y cannot be solved in polynomial tiem, then X cannot be solved in polynomial time.
+
+Proof: Theorem 2 is the contrapositive of theorem 1.  ie. the two statements are equivalent.
+
+Example 1: Independent set and vertex cover
+===========================================
+
+Problem 1 (indep. set): Given an undirected graph G and a initial number k in N, does G contain an indep. set of size k or larger?
+
+Definition: Given an undirected graph G = (V,E).  We call a set S of indicies, S contained in V, independent if there is no pair of nodes in S that are connected by an edge.
+
+From 2.6.4, we know that the brute force approach of finding an indep. set of size k for a graph G with n nodes requires us to look at choose(n, k) subsets of size k.  This takes O(n^k) time.
+
+Problem 2 (vertex cover): Given an undirected graph G =(V,E) and a number k in N does G contain a vertex cover of size <= k?
+
+Definition: given G as above, A subset of nodes S in V is a vertex cover if every edge e of E has at least one of it's nodes in S.
+
+Strategy: In order to show that the two problems are of comparable difficulty, we will show that
+	- (P1) <=p (P2)
+	- (P2) <=p (P1)
+
+Theorem: Given an undirected graph G=(V,E) and a subset S of V, then the following equivalence holds:
+	S is independent <==> V\S is a vertex cover
+
+Proof: 
+-> Suppose S is an independent set for G.  Consider an arbitrary edge e = (u,v) in G.  As the set S is indep we cannot have that both u and v are in the set S.  This imples that either u or v are in V\S (or both).  As edge e was arbitrarily chosen we can then conclude that V\S is a vertex cover.
+
+<- Suppose V\S is a vertex cover, ie. every edge in E has at least one of its nodes in V\S.  That is every edge does not have both nodes in S.  So consider any two nodes (u,v) in S. If G contained some edge e = (u,v) and neither node u,v were in V\S then V\S could not be a vertex cover (a contradiction).  It then follows that any two nodes in S are not connected by an edge and that S in an indep. set.
+
+lemma 1: (Indep. set) <=p (vertex cover)
+Proof: This follows immediately fromthe previous theorem and the defintion of <=p.  This is because any instance of the indep set problem can be solved by using an alg to solve the vertex cover problem (for the same graph G).
+
+The previous theorem allows us to convert V\S into the desired set S which solves the intep set problem.
+
+Lemma 2: (vertex cover) <=p (indep set)
+Proof: Strictly analogous to the proof of lemma 1.

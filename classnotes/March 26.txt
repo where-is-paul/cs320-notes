@@ -1,0 +1,95 @@
+March 26 
+
+7.3 Sequence Alignment
+======================
+
+Motivation: We want to compare a given pair of strings.
+Ex. Two strings X = STOP and Y = TOPS, we may want to align them:
+	STOP-
+	-TOPS  <--- where the dashes are 'gap' characters, where one string is lacking a char but not the other
+
+We need a quantitative score to judge the quality of a potential alignment given two input strings.  Need a clear procedure (algorithm) to optimize the overall score so we can identify the best alignment give two input strings.
+
+Key idea: judge any possible alignment based on:
+	(a) the number of gaps
+	(b) the number of mis-matches
+
+Definition: a mismatch is an alignment of two characters p and q where p =/= q.
+
+Definition: given sequences X = (x1, x2, ..., xl_x) (of length l_x)
+							Y = (y1, y2, ..., yl_y) (of length l_y)
+			a global alignment, A, between two sequences X and Y is a pair of strings X' and Y' of the same length l_A (the alignment length), where X' in Ax union { - } and Y' in Ay union { - } (where Ax and Ay denote the alphabets from which the symbols in X and Y derive) s.t.:
+							if we remove the gap chars from X' we obtain X
+							if we remove the gap chars from Y' we obtain Y
+							two gaps are never aligned, ie. there is no i {1...l_A} with x'_i = y'_i = '-'.
+
+delta in R+ is the gap penalty.
+alpha_pq is the mismatch cost of aligning p to q.  Usually, alpha_pq = 0 iff p == q, else alpha_pq > 0.
+the cost of alignment A between sequences X and Y is:
+	c(A, C, Y) = SUM_i to l_A ( ci ) 	where ci denotes the cost/penalty for alignment of column i
+
+	For our example c(A,X,Y) = delta + alpha_tt + alpha_oo + alpha_pp + delta
+
+GOAL: Given X and Y and chosen penalties delta and alpha_pq, find the optimal alignment A* = argmin{c(A,X,Y)}.
+
+BIG QUESTION: given X and Y how many possible alignments are there?
+
+Smaller question:  What is the min is the middle of the maximum length of any aligment A between X and Y?
+Lmin = max{lx, ly}
+Lmax = lx + ly
+
+question 2: Given a fixed alignment length lA in {lmin,...,lmax} what is the number of different alignments of that length?
+gapsx = lA - lx, gapsy = lA - ly (note the () in the following are choose notation)
+-> the number of different possible configurations of X' = ( lA gapsx ) = ( lA lA-lx ) = the number of ways of inserting gapsx indistinguishable gaps in lA position.
+-> for a fixed configuration of X' the number of configurations of Y' = ( lA - gapsx gapsy ) = ( lx lA - ly )
+so in total we have that there are ( lA lA-lx )*( lx lA-ly ) alignments for a given aligmnent length lA.
+
+BIG QUESTION FINALLY:
+Then summing over the total alignment length we have that there are a total number of alignments of:
+N(lmin, lmax) = SUM_lA = lmin to lA = lmax ( lA lA-lx )*( lx lA-ly )
+
+Ex. N(L,L) ~= (1+sqrt(2))^(2L+1) / sqrt(L)
+
+So we don't want to brute force this, is the point of that.
+
+Definitions: M(i,j) = the minimal cost of an alignment between sub-sequences Xi = (x1...xi) and Yj = (y1...yj)
+					= the cost of an optimal alignment between Xi and Yj
+
+Key Observation: if we happen to know the values of M(i,j-1) M(i-1,j-1) and M(i-1,j) then we can derive M(i,j) as follows:
+		M(i,j) = min( M(i-1,j-1) + alpha_xiyj,    align xi, yi
+					  M(i-1,j) + delta,			  align xi to a gap
+					  M(i,j-1) + delta)			  align yj to a gap
+
+Why dont we consider, when calculating M(i,j), 
+					say M(i-1,j) + alpha_xiyj ?
+					M(i-1,j-1) + delta 		  ?
+					M(i,j-1) + alpha_xiyi     ?
+
+my answer: going from M(i-1,j) to M(i,j) you would never be aligning xi to yi, same to all, so these questions are silly.
+
+Optimal Alignment( X, Y ):
+	
+	allocate 2d-matrix M of (L_x + 1) x (L_y + 1) elements
+	M[0,0] = 0
+	for i = 1 to lx:
+		M[i,0] = i * delta
+	for j = 1 to ly:
+		M[0,j] = j * delta
+
+	for i = 1 to ly:
+		for j = 1 to lx:
+			M[i,j] = min{ M(i-1,j-1)+alpha_xiyj, M(i-1,j) + delta, M(i,j-1) + delta }
+
+	return M[lx,ly]
+
+-> to retrieve the corresponding alignment we could have been assigning pointers as we went through the 2d array, so that each square knows which square it took its minimum value.
+
+Time requirements: O(lx*ly)
+
+
+
+
+
+
+
+

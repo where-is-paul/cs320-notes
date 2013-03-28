@@ -1,0 +1,103 @@
+Feb 14 
+
+Proof of Kruskal's aglorithm's correctness cont.
+
+(b) Let G' denote the sub-graph of G that the algorithm returns, we know that G' does not contain any cycles.
+
+(c) We also know that G' is connected as we would otherwise have a non-empty set S of nodes, S strictly contained in V, with no edges connecting to V\S.  As the input graph G is connected, there is always a connecting edge between any non-empty subset S strictly contained in V and V\S.
+
+(b) & (c) -> G' is a spanning tree of G
+(a) -> G' in a minimum spanning tree
+
+
+Time Complexity of Kruskal's Algorithm (first thoughts)
+=======================================================
+
+Reminder of Kruskal's algorithm: start with subgraph of G containing only the nodes of G but no edges
+								 while the number of edges in G' is < |V|-1 {
+								 	of all edges in G that have no yet been added to G':
+								 		select the edge e with minimal l(e) (weight)
+								 		add e to G' unless it would create a cycle to do so
+								 }
+
+
+let G have |V| = n nodes, and |E| = m edges
+
+Note the outer while loop is O(n), but we dont yet know the time complexity of the inner steps since the pseudo code is not detailed on the implementation.  So time to introduce a new data structure.
+
+
+4. AMORTIZED ANALYSIS AND MERGE-FIND DATA STRUCTURE
+===================================================
+
+4.1 What is amortized analysis (AA)?
+Key idea: express one expensive operation as a finite series of k cheap operations.
+		  then show that the worst-case cost (say time cost) for the entire sequence of k operations
+		  is lower than the sum of worst-case costs of the k individual operations, ie.
+		  	cost( SUM_1 to k (operation) ) <= SUM_1 to k cost(operation)
+
+Definition: Amortized analysis is a set of techniques we can use to get more precise cost-estimates for entire sequences of k operations.
+
+Example: Suppose we are dealing with a series of n calls to operations, each one of:
+			PUSH			O(1)
+			POP  			O(1)
+			MULIPOP(j)		O(n) (since j<=n)
+
+Question: what is hte worst-case time estimate for a series of n operation of the above kind?
+
+Answer: Can push/pop each of the n elements at most once, hence O(n) overall running time.  In particular cannont have n calls to MULTIPOP (at a cost of O(n) each), ie running time must be better than O(n^2)
+
+Conclusion: To get accurate time estimates, need to investivage how the k individual statements influence each other.
+
+4.2 The Potential Method
+========================
+
+Key Ideas: we are dealing with a sequence of k individual opertions: op_i with i in { 1,2, ..., k }
+we assign to each operation a cost: cost-real(op_i), which corresponds to the actual cost of op_i as well as a cost-am(op_i) called amortized cost of opi whcih constitutes our best guess of the cost of operation op_i (can be <, =, or > the cost-real(op_i)).
+
+when we now execute the sequence of k operations op_i and are currently dealing with operation op_i:
+	(a) we pay for / budget for cost-am(op_i)
+	(b) if cost-real(op_i) < cost-am(op_i) {
+		save 'saved cost' ie cost-am(op_i) - cost-real(op_i) in bank (to spend later if needed)
+	} else {
+		take cost-real(op_i) - cost-am(op_i) from bank balance IF the current balance allows this
+	}
+
+	in the above, interpret
+		phi( Di ) = bank balance on total cost of executing operations 1 to i, i in {1, ..., k} where
+		Di = data structure after operations 1 to i.
+	ie. interpret the bank balance as a function of overall cost of the algorithm up to operation i.
+
+PROPERTIES OF THE POTENTIAL FUNCTION: we impose the following on phi:
+(1) phi(Di) >= 0, for all i in {1,...,k}
+    ie. we cannot borrow execution time we did not budget for
+
+(2) phi(D0) = 0
+(3) phi(Di) = phi(Di-1) + cost-am(op_i) - cost-real(op_i) for i in {1,...,k}
+
+logical flow of argument in the following:
+we will start by defining the potential function phi and then determine the amortized costs by enforcing the properties of phi.
+we want to show that for a series of n operations 
+	SUM_1 to n cost-read(op_i) <= SUM_1 to n cost-am(op_i)
+as we can then conclude that the overall running time is <= O( SUM_1 to n cost-am(opi))
+(where note that the order of the big-O notation and sum is key)
+
+Example. We have n elements
+		 have a mix of k <= n operations PUSH, POP, MULTIPOP(j) where j<= n as before.
+		 choose phi(Di) = size of Di <-- data after operation i
+		 want (1) phi(Di) >= 0 for all i in { 1,..., k}
+		 	  (2) phi(D0) = 0
+		 	  (3) phi(Di) = phi(Di-1) + cost-am(op_i) - cost-read(op_i)
+
+IDEA: Choose cost-am(op_i) so (1) to (3) are satisfied
+consider op_i = PUSH, statement 3 gives us the constraint that:
+	phi(Di) = phi(Di-1) + cost-am(push) - (1)
+	phi(Di) - phi(Di-1) + 1 = cost-am(push)
+	size(Di) - size(Di-1) + 1 = cost-am(push)
+	1 + 1 = 2 = cost-am(push)
+
+using the same strategy for for op_i = POP we find cost-am(POP) = 0.
+
+however MULTIPOP(j) is more complex since we can only pop what has already been pushed:
+	constraint 3 <=> cost-am(MULTIPOP(j)) = size(Di) - size(Di-1) + cost-real(MULTIPOP(j))
+										  = size(Di) - size(Di-1) + cost-real(MULTIPOP(j))
+										  = -j + n

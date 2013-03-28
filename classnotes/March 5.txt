@@ -1,0 +1,120 @@
+March 5
+
+COUNTING INVERSIONS
+===================
+A ranking is a list of n integers, without repeats.
+
+Example: A = (2, 4, 1, 3, 5) B = (1, 2, 3, 4, 5) ie n = 5
+
+Goal: come up wiht a quantitiative way of measuring how similar 2 rankings are.  We want the measure of difference to be zero for two identical rankings.  The measure should increase with a growing number of differences.
+
+Group Work: Propose a measure that compares rankings (ie. a meaningful definition)
+
+Definition: an inversion is a pair of numbers (ai, aj) such that ai > aj and i < j. 
+(Ie. she means you label all the numbers by their rankings in one list, ie 
+(a1, a2, a3) = (2, 1, 3) -> a1 = 2, a2 = 1, a3 = 3, then if we had another list (2, 3, 1) the number of inversions would be one, the pair 3 and 1 coming in order (3, 1) = (a3, a2))
+Example: (2,1) is an inversion as (a1, a3) and 1 < 3.
+
+<< Picture of two rankings, one above the other with lines connecting each element in the above list to it's place in the below list, lines crossing each other indicate inversions). >>
+
+Group Work: Given two rankings A and B of numbers from Wn, what is the maximum number of inversions?
+
+If we are dealing with n numbers from Wn, we have n lines linking each number ai in A to a number bj = ai in B. These lines may have at most:
+	n(n-1)/2 = (n, 2) ( ie. Choose(n,2) ) pairwise corssing.  we count every crossing only once, namely the case (ai, aj) with ai > aj and i<j.
+
+We have (n, 2) inversions if A and B are in inverse order, ex A descending and B ascending order.
+
+Note that to check all pairs would require O(n^2) time.
+
+Question: can we actually find an algorithm where worst-case running time is better than O(n^2)?
+Idea: 	Cannot look at every possible inversion individually as this might require O(n^2) time.
+		use a recursive algorithm
+		assume n = 2^k, k integer.
+
+(note that all the following inversions are with respect to some other list B)
+
+(1) Parition A = (a1, ..., an ) into two lists of n/2 length each.  
+		A1 = (a_1, ..., a_n/2) and A = (a_n/2+1, ..., a_n)
+(2) (recursively) Count the number of inversions in A1 and A2 separately
+(3) Count the number of inversions where one number belongs to A1 and another to A2.
+	[ this corresponds to the step where we combine two partial solutions into one, ie. we still need to determine how efficiently we can do this]
+
+
+-> We are dealing with a binary tree (because of (1)) with log(n) levels, but it is yet unclear how efficiently we can combine partial solutions into one.
+
+-> Have a recurrence relation: T(n) <= 2*T(n/2) + ???
+
+Goal: Find out how to combine partial solutions efficiently.  
+	have: 2 sorted lists A1 A2, for which we know the number of inversions.
+	(call A = A1 and B = A2 in the following:)
+	want: a single sorted list A' while counting the inversions between A and B.
+
+Recall the merge sort algorithm
+Question: Can we modify the merge sort algorithm to count inversions between A and B while producing A'?
+We need to count the number of pairs (a,b) with a from A, and b from B, and a > b (ie an inversion).
+
+Yes, rough algorithm: 
+if ai < bj, we move ai to list A' and we know that we are NOT dealing with an inverison as everything left in list B beyond bj is also larger ai.
+else ai > bj we move bj to A' as we know that bj is smaller than all elements in A as this list is already sorted. Thus, when ai > bj we know  (without explicitely counting) that we have |A| inversions, where |A| is the number of elements in A at this time.
+
+our new algorithm is:
+Merge-and-count(A,B) :
+	keep a separate pointer for A and B which point to the first element to start with
+	set count = 0 which is equal to the number of inversions encountered
+	while both lists A and B are not empty {
+
+		let ai and bj be the elements being pointed to
+		append min(ai, bj) to new combined list C
+		if ( ai > bj ) {
+			count += remaining number of elements in A
+		}
+		advance the pinter corresponding to min(ai, bj)
+	}
+
+append rest of list which has not been completely emptied onto C
+return count and list C
+
+Definition: Sort-and-Count(A)
+	let n denote the length of A
+	if (n=1) { enter 0 as number of inversion and A itself as list }
+	else {
+		divide A into two smaller lists A1 and A2 of roughly equal size
+		A1 contains first ciel(n/2) elements of A
+		A2 contains the remaining elements of A
+		(rA, A1) = sort-and-count(A1)
+		(rB, A1) = sort-and-count(A2)
+		(r, L) = merge-and-count(A1, A2)
+		return (r + rA + rB) as the number of inversions and list L
+	}
+
+Conclusion We are dealing with an algorithm of the following recurrence relation:
+	T(n) <= 2*T(n/2) + c*n
+	-> (from 5.1) the algorithm requires O(nlogn) time.
+
+
+
+5.2.2 Example 2: Finding the closest pair of points in two dimensions
+=====================================================================
+
+Reminder: for n points in R^2 we need to calculate (n,2) distances to find the answer, ie. which requires O(n^2) time.
+Goal: can we do better?
+
+Consider the 1 dimeionsal case: n points in R.  
+Strategy: first, sort all points according to their x-coordinates (this requires O(nlogn) time), then we walk through the sorted list and caluclate distances between adj pairs of points (O(n) time) and keep track of the minimum distance found.  Overall the algorithm is O(nlogn) to solve the 1 dimensional problem.
+
+2 dimensional case:  we will try to recycle some ideas fromt the 1 dimensional case.
+every one of the n points may be denoted as a vector (x y) in R^2 (not to be confused with choose notation (n, m) <- comma).  
+define the distance d(p1, p2) = sqrt((x1-x2)^2 + (y1-y2)^2).
+We will additionally assume all points p in our set have distinct x and y coordinates.
+
+key 1. use a divide and conquer approach: 
+	(1) divide the set P of n points into two halves (P1, P2), based on their x-coordinates (this requires O(nlog(n) time, see the one dimensional case).
+	Sort all n points in P according to their:
+		x coordinate -> list Px
+		y coordiante -> list Py
+	We remember in the follow for each point p in P what its position is in Px and Py.
+
+... To be continued next class.
+
+
+

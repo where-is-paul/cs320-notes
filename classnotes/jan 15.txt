@@ -1,0 +1,127 @@
+Jan 15
+
+2.5 ASYMPTOTIC BOUNDS FOR SOME COMMON FUNCTIONS
+===============================================
+
+try not to forget what a POLYNOMIAL is ok.
+lemma: let f be a polynomail of degree d, then f=(n^d)
+	proof: let f(n) = SUM a_in^i.  We can define f_i(n) = a_in^i.  Then for every f_i:
+		a_in^i <= |a_i|n^i for all integers n, and |a_i| in Reals.
+	We also have, for every f_i:
+		a_i n^i <= |a_i| n^i <= |a_d|n^d, thus f_i = O(n^d), thus f=O(n^d) by additivity proved before.
+
+likewise with LOGS / LN / LG
+lemma for every b, r>1 in reals,and n>0, we have log_b(n) = O(n^r)
+Note: 	log_b(n) = x in reals is the solution to n = b^x,
+		log_b(n) = log_x(n)/log_x(b),
+		log_c(n) <= n
+
+also EXPONENTIALS
+lemma: n^d = O(n^n) for every integer n>1, reals r>1 and d>0, ie. exp > poly always.
+
+2.6 SURVEY OF COMMON RUNNING TIMES
+==================================
+2.6.1 ALOGIRHTMS THAT REQUIRE O(N) IE. LINEAR TIME
+===================================================
+example. we have two sorted arrays of numbers, A = [ a1, a2, ... an ], B = [ b1, b2, ... bn ].
+find an efficient algorithm to merge thesse number into one sorted list.  assume ascending order
+
+pointer into each array, compare current value of both, add smaller to sorted list and inca.
+(consider end of list loser in any comparison)
+
+hers:
+while we haven't reached the and of any list {
+		let ai and bj be the next elements pointed to
+		append min{ ai, bj } to list C and advance corresponding pointer
+}
+
+the algorithm is of O(n).  Proof:
+	The resulting list C has 2n elements.  Each element required a single operation (comparison) to be added to C.  The while-loop is thus executed at most 2n times.  therefore the running time is O(n)
+
+2.6.2 ALOGIRHTMS THAT REQUIRE O(N^2) IE. QUADRATIC TIME
+=======================================================
+example: Given a set of n points (xi, yi) in R^2, find the pair of points i and j i =/= j with the smallest eulidian distance, d = d((xi, yi), (xj, yj)) = sqrt( (xi-xj)^2 + (yi - yj)^2 ) >= 0
+
+observation: 
+going through the points and making all new comparisons that you need to to that point we have
+(n-1) + (n-2) + (n-3) + ... = n(n-1)/2 = the number of unordered pairs as you'd expect.
+
+Algorithm:
+	for each i from 0 to n, take input point (xi, yi) {
+		for each j from i to n take input point (xj, yj) {
+			compute dij
+			if dj is smaller than the current minimum distance d, replace with dj
+		}
+	}
+
+The worst case running time is O(n^2) as we have two nested for-loops which each require O(n) time and the operations in the inner-most scope require constant time.
+
+2.6.3 ALOGIRHTMS THAT REQUIRE O(N^3) IE. CUBIC TIME
+===================================================
+example.
+given n subsets Si of the set of integers { 1, 2, ... n } first out if any pair of subsets Si Sj are disjoint. ie Si intersect Sj = empty set.
+
+algorithm:
+	for each set Si {
+		for each set Sj i=/= Si {
+
+		for each element p in Si {
+			 check Sj for p:
+			 if p in Sj break with failed
+		}
+		if not failed (if no elements of Si were found in Sj) 
+		then we have found our disjoint set
+		}
+	}
+
+The worst case running time is O(n^4) as we have 3 nested loops each requiring O(n) time and an O(n) operation inside of that.  However if we have an array for out sets or something and are assuming that the inner most scope can be completed in constant time then it's O(n^3).
+
+2.6.4. ALOGIRHTMS THAT REQUIRE O(N^K) TIME
+==========================================
+
+Ex.  given a graph with n nodes, check if it contains an independent set of size k <= n, ie a set of k nodes, where there are no edges between any pair of nodes.  
+
+Algorithm: 
+	for all subsets S of size k nodes {
+		 check if S is independent
+		 if so: 
+		 	then return true
+	}
+	return false
+
+
+// is this any better? recursive
+for each node {
+	try picking another node indenpendent to it and recurse
+		return if you fail with this node dropping it from the nodes considered on with the previous node
+}
+
+
+how many sets of size k are there to be considered?
+num = C (n,k) = (n!)/(n-k)!k! = (n)(n-1)...(n-k+1)/(k*(k-1)*...1) <= n^k/k!
+also she's saying <= n!/k! <= n^k/k! which is true asymptotically with k.
+
+Inside the for-loop, each k-node sub-set is treated for independence, this requires investigating C(k,2) pairs which is O(k^2).  The for-loop is executed at most n^k/k! times.  As we can view K as a constant, the algorithm is overall O(n^k).
+
+2.6.5 ALGORITHMS THAT REQUIRE BEYOND POLYNOMIAL TIME
+====================================================
+
+ex. similar to 2.6.4, but now the task is to find an independent k-node set of maximal k <= n.
+
+Algorithm:
+	for each subset s of n nodes {
+
+		check if S is an independent set
+		if yes and S is larger than the previously found subset {
+			record the size of S as the current maximal set
+		}
+	}
+
+We now need to consider all subsets S of n nodes:
+there are :
+
+SUM C(n, k) from k=0 to n
+= SUM C(n,k) (1)^k (1)^(n-k) = (1+1)^n (binomial)
+							 = 2^n
+
+the for-loop is of order O(2^n) each subset requries at most O(n^2) time to check for indepence, the algorithm thus requires O(2^n*n^2) time

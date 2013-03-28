@@ -1,0 +1,168 @@
+Jan 8 
+
+
+Stable Matching Algo
+====================
+set all m in M and w in W to free
+while a free woman has not yet proposed to every man:
+m <- highest ranking man w hasn't proposed to yet
+if m is free:
+pair w and m
+else:
+w' <- current fiancee of m
+if m prefers w to w':
+set w to free
+pair w and m
+
+1.1.1 TIME COMPLEXITY
+=====================
+observation 1. m remains paired and his partners get better over time
+observation 2. the sequence of men to which  w proposes to gets worse
+
+Theorem: The stable matching algorithm terminates after at most N^2 iterations of the while where N = M = W.
+
+Proof: at every iteration of the while-loop a woman proposed to a man she hasn't proposed to yet.  Given that there are N men, each woman makes at most N proposals, as there are N women, we thus have at most N^2 iterations of the while loop.
+
+The total execution time also depends on:
+	(a) How many steps it takes to identify an unpaired woman
+	(b) How many steps it takes a woman to decide whom to propose to 
+	(c) How many steps it takes a man m to decide if he prefers woman w to w'
+
+How to optimize those (in time if not in space ...)
+	(a) Keep a list of unpaired women
+	(b) Each woman has a list of men sorted in decreasing order, maybe a stack, dont want men she's already proposed to in there.
+	(c) Each man has an array index my woman's number assigning them a value, and an index naming his current partner.
+
+1.1.2 CORRECTNESS OF ALGORITHM
+==============================
+
+Lemma.1 If we find a lady who is unpaired, then there will be at least 1 man who she hasn't proposed to yet.
+Proof: according to observation 1, if Woman w has proposed to every man, then every man is engaged.  Since the number of women (W) is equal to the number of men (M), this implies that every woman is engaged.
+
+Lemma.2 The set J C \/\/ x /\/\ returned by the algorithm is a perfect matching.
+Proof: The algorithm terminates if every woman is paired, we also know that every woman is paired to at most 1 man at any time.  So, at the end of the algorithm, every woman is paired to exactly one man.  Because N = M = W, this imples that every man is paired to exactly one woman.
+
+Theorem The matching returned by the algorithm is stable.
+Proof:  [ by contradiction again ] 
+	Suppose the algorithm returns an instability wrt the matching, ie. a pair of pairs (w,m) and (w',m') where m prefers w' to w and w' preferns m to m'.  
+
+	From the algorithm we know that the last proposal of w' was to m', otherwise they would not form a pair.
+	Did w' propose to m?
+	(1) If not, because she actually ranks m > m', and ladies propose to men in order of preference we have a contradiction.
+	(2) If so, if w' proposed to m and yet is no longer paired with m, then at some point she must have been kicked out by a woman that m preferes to her.  Either this woman, w'' is his current pair, or was kicked out by someone even better, and likewise w'' could have been kicked out by someone even better, but in the end the point is the last woman w is prefered to the first, w', which is a contradiction.
+
+	Therefore there is no way that an instability can possibly exist and the matching is stable.
+
+2. ASYMPTOTIC NOTATION
+======================
+
+Motivation: we want to find out how an algorithm's running time grows as a function of the input size.  Typically, we are interested in the worst-case running time of an algorithm.
+
+Definition: step in the algorithm = assigning a value to a variable etc.
+
+Goal: Given an algorithm, generally as pseudo-code, specify the running time ( in steps ) as a function of the input size n.
+
+We want to capture hte running time in a way that is 
+	- insensitive to constact factors
+	- loswer order terms
+	- hardware independent
+
+2.1 ASYMPTOTIC UPPER BOUNDS big-O
+=================================
+
+Motivation: Given an algorithm specified in pseudo-code which requires at most T(n) to complete for an input of size n (an Integer), T: Ints -> pos_Reals, find a function f: Ints -> pos_Reals which, if multiplied by a real constant c > 0, provides an upper bound to T(n) for sufficiently large vales of n, for all integers n.
+
+In other words, find a function f: Ints -> pos_Reals such that:
+			 T(n) <= c * f(n),  for all ints n > n_0, c>0 real
+
+Example. T(n) = 7n^2 + 5
+	What is an asymptotic upper bound on T(n)?
+	We could, for example, choose f(n) = n^3
+	Because T(n) = 7n^2 + 5 <= 7n^2 + 5n^2 <= 12n^2 <= 12n^3 = c*f(n) fpr all  ints n >= 1.
+
+jan 10
+
+2.1 ASYMPTOTIC UPPER BOUNDS
+===========================
+
+T(n) = the worst-case number of steps the algorithm requires to complete for an input of size n.
+
+Def: let T(n), T: Int -> Reals, describe the worst-case running time of a given algorithm as a function of input size.
+We say T(n) is of order f(n), O(f(n)), if T(n) is asympotically upper bounded by f: Int->Reals, ie there is a constant real c  and n_0 such that T(n) < c*f(n) when n > n_0.  
+We then write T(n) = O(f(n))
+
+2.1 ASYMPTOTIC LOWER BOUNDS (OMEGA THING)
+=========================================
+
+Def: Let T(n) be defined as before.  We say that T(n) is OMEGA(f(n)), ie we say that T(n) is asymptotically lower bounded by f(n): int -> real, if there is a constant c in R and n_0 such that:
+	T(n) >= c*f(n) when n >= n_0
+we also say:
+	T(n) = OMEGA(f(n))
+
+Group Work: Find an asympototic lower bound for T(n)
+
+2.3 ASYMPOTOTIC TIGHT BOUNDS THETA(phi)
+=======================================
+
+Motivation: We would like to know a precise decription of an algorithm's worst-case runnng time.
+
+Definition: We say that f(n) is an asympotically tight bound for T(n) and we say T(n) is     THETA(f(n)) if T(n) = O(f(n)) = OMEGA(f(n)) (for the same f but sure different n_0)
+
+Ex.  Since we have shown that T(n) = 7n^2 + 5 has a lower bound f(n) = n^2 and an upper bound f(n) = n^2, we have already that T(n) = THETA(f(n)).
+
+2.4 PROPERTIES OF ASYMPTOTIC GROWTH RATES
+=========================================
+
+Theorem: let f,g : int -> R be two functions for which:
+	lim n-> inf f(n) / g(n) = C, where C>0 in R
+Then we have that g(n) is a tight bound for f(n), ie f(n) = THETA(g(n))
+
+Proof: 
+	if lim f(n)/g(n) = C, then we have that there exists some n_0 such that:
+		C/2 <= f(n)/g(n) <= 2C, for n > n_0
+	That is,
+		f(n) <= 2C*g(n) for n>n_0, therefore f(n) = O(g(n))
+		f(n) >= C*g(n)/2 for n>n_0, therefore f(n) = OMEGA(g(n))
+	Therefore f(n) = THETA(g(n))
+
+--> you could do the same for g(n), just 1/ everything.
+
+Lemma: if a function f is asympototically upper-bounded by g and g in turn is asymptotically bounded by h, then f is asymptotically upper-bounded by h.  Likewise for asympototically lower and therefore this also applies to asymptotically tight bounds.
+
+	In other words:
+		(a) f=O(g) ^ g=O(h) -> f=O(h)
+		(b) f=OMEGA(g) ^ g=OMEGA(h) -> f=OMEGA(h)
+		(c) f=THETA(g) ^ g=THETA(h) -> f=THETA(h)
+
+	Proof: 
+		(a) we have there exists n_0 and c1 such that for all n>n_0 f < c1*g and also there exists n_1 and c2 such that for all n>n_1 g<c2*h, which implies that c1*g < c1*c2*h.
+		So take n_2 to be max(n_0, n_1) and we have for all n > n_2 f < c1*g < c1*c2*h = c3*h.  Which implies that f is O(h).
+		(b) see (a) except reverse all the inequalities on f and g and h ...
+		(c) we have the same assumptions as (a) and (b) therefore we have the same results as (a) and (b), ie we have f=O(h) ^ f=OMEGA(h) -> f=THETA(h)
+
+Lemma: f=O(h) ^ g=O(h) -> f+g=O(h)
+
+	Proof:
+		we have f<= c1*h(n) for all n>n_0
+		and have g <= c2*h(n) for all n>n_1
+		so f + g <= c1*h(n) + c2*h(n) = (c1+c2)*h(h) for all n>max(n_0, n_1)
+
+Lemma: Given integer k, and k fucntions f_i : N -> R, i in {1,2, ..., k}
+	with f_i = O(h), then
+	SUM f_i = O(h)
+
+	Proof: 
+		SUM f_i(n) <= SUM c_i*h(n) = ( SUM c_i )*h(n) 
+
+Lemma: Given g = O(f), then f + g = O(f)
+
+	Proof:
+		Obviously f is O(f), therefore since we have g=O(f) by the lemma 2 lemma's ago we have f+g = O(f)
+
+Lemma: Given g = O(f), then f + g = THETA(f)
+	
+	Proof:
+		By the previous lemma we have that f(n) + g(n) = O(f).
+		additionally we know that f(n) <= f(n) + g(n) since all functions > 0
+		therefore f(n) + g(n) = OMEGA(f)
+		therefore f(n) + g(n) = THETA(f)

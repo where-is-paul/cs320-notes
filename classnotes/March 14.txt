@@ -1,0 +1,76 @@
+7. DYNAMIC PROGRAMMING - not on midterm
+=======================================
+
+Key ideas:
+	we want to identify a globally optimal solution.  For this, we need to define what we mean by best solution.  Express the overall state that any solution can be assigned as a sum or product of states for the partial solutions.
+
+	Search the space of all possible solutions in an efficient manner by looking at:
+		successively at larger solutions
+		by discarding sub-optimal solutions to sub-problems as early as possible
+
+7.1 Ex. Weighted inverval matching
+Setting: given a set S of n weighted intervals:
+	S = { (s(1), f(1), w(1)), ..., (s(n), f(n), w(n)) } where s(i) < f(i) in pos reals
+														and w(i) is the weight of interval i
+
+Task: Find an optimal sub-set T of S such that
+	- the intervals in T are mutually non-overlapping
+	- there is no subset T' of S whose intervals are also non-overlapping and whose sum of interval weights is larger.
+
+The weight w(i) of interrval ihas nothing to do with its length.
+Assume: intervals in S are sorted according to their endpoints, ie f(i) <= f(j) for i<j
+
+Def: Sj = {(s(i), f(i), w(i)) s.t i <= j }
+ie subsets of intervals from S with endpoints f(i) <= f(j)
+W(j) = the sum of wieghts for the best interval scheduling for set Sj
+C(j) = largest Set of i < j such that intervals i and j do not overlap, c(j) = 0 if no such interval exists.
+
+Algorithm: Weighted Interval Scheduling (S)
+W(0) = 0
+for (i = 1 to n ):
+	W(i) = max( W(i-1), w(i) + W(c(i)))  
+	- note weight stays the same, we are not including the weight of interval i 
+	- W(c(i)) is the optimal solution to and excluding interval i and adding the weightof i becasue we knwo that intervals c(i) and i are mutually compatible.
+
+	T = empty
+	last_i = n
+	while (last_i > 0):
+		if w(last_i) > w(last_i=1):
+			add last_i to set T
+			last_i = c(last_i)
+		else:
+			last_i = last_i-1
+
+return T
+
+
+Deriving an alternative algorith that does not require c(j) - values
+
+Definitions:
+S and Sj as before n = |S|
+New: W(j) = the sum of weights of the last interval scheduling for Sj that ends in and includes interval j itself.
+t(i,j) = { 1 if i and j are compatible, 0 else }
+Wi^0 = W_i union {0}
+Start and end are fake intervals of weight 0 that are compatible with all intervals in S
+
+Alg: Weighted interval scheduling
+=================================
+initializiation: W(0) = 0 <--- start interval
+
+recursion:
+	for i = 1 to n:
+		W(i) = max{ W(j) t(j,i) } + w(i) max over j in { 0,..., i-1}
+
+termination: W(n+1) = max{ W(j) t(j, n+1)} + w(n+1) max over j in {0,..., n}
+				end interval		= 1			= 0
+
+traceback: 
+	T = empty
+	last_i = argmax{ W(j) t(j, n+1)} + w(n+1) max over j in {0,..., n}
+
+	while (last_i > 0):
+		add last_i to T
+		last_i = argmax{ w(j) t(j, last_i) } over j in {0,..., i-1}
+	return T
+			
+

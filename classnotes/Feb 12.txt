@@ -1,0 +1,93 @@
+Feb 12
+
+
+DIJKSTRAS RUNNING TIME
+======================
+
+Recall defs: V = verticies / nodes, L = visited nodes, V\L = unvisited nodes
+
+Recall the step in the algorithm:
+	- select the node v in V\L which is connect by one edge to a node in L and where the following distance is minimal:
+		distance(v) = min_u in L(k-1) { distance(from s' to u) + l(u,v) }
+		(that is the total distance from s' through to a point in V one away from v to v itself)
+		(min_u in L(k-1) just means the minimum of the value in {} checked for all u that were in the set L on the k-1th iteration)
+
+We would like to optimize the above step.
+
+Observations:
+
+1. the whole loop requires (n-1) iterations for a graph with |V| = n nodes beacuse each iteration moves a node from V\{s'} to L. (where by V\{s'} she means the set of all nodes except for the starting node which starts out as visited)
+
+2. How do we efficiently select the next node to be added to L?
+	- on any iteration k we can:
+		- remember the distances values we have already calculated
+		distance(v) = min_u in L(k-1) {  d(u) + l(u,v) } for every u in V\L at any time
+		- order nodes in V\J in a heap-based priority queue with distance(v) vlaues as keys
+		- in iteration k, add winning node L(k) = L(k-1) union { v } (<--- the kth L is just the K-1th L with v added) and remove v' and d(v') from the priority queue.
+
+	- at iteration k+1: consider all nodes in V\L(k)
+		- if (v',v) in E (E = set of edges) then we may need to assing a new value to distance(v) by computing 
+			distance_k+1(v) = min{ distance_k(v), distance_k(v')+l(v',v) }
+		  else distance_k+1(v) = distance_k(v)
+
+3.  Throughout the algorithm, we need to change a key at most once for every edge in the graph, whenever a node at the end of that edge is added to L.
+
+4.  For a graph with |V| = n nodes, ie. at most n elements in the priority queue, we need at most O(log(n)) time to 
+		- insert or delete an element
+		- change an element's key
+		- extract an element with minimum key
+
+CONCLUSION: For a graph with |V| = n nodes and |E| = m edges, the algorithm requires O((m+n)log(n)) time.
+
+Proof: Based on observations 3 and 4 we require at most m*log(n) time to update at most m keys in the priority queue, each of which take log(n) time.
+Based on observations 1, 2 and 4, we require at least n*log(n) time to delete at most n nodes from the queue, each again costing log(n) time.
+
+
+
+3.2.2 MINIMUM SPANNING TREES
+============================
+
+Recall: an undirected, connected graph G is called a tree if it does not contain a cycle.
+
+Definition: A spanning tree in a graph G is a tree that contains all nodes in the graph G.
+
+Goal: For a given undirected, connected and weighted graph G = (V,E,s,t,l), where l:E->R+, denotes the length function (or weight function), find a spanning tree T in G whose sum of edge weights is minimal.
+
+cost(T) = SUM l(e) for all edges e in T
+
+we call such a tree a minimum spanning tree (MSP).
+
+KRUSKAL'S ALGORITHM
+===================
+
+start with subgraph G' contianing only the nodes of G (ie no edges yet).
+	while the number of edges in G' is < |V|-1 {
+		of all edges in G we have not yet added to G, pick the edge with 
+		the smallest weight l(e)
+		add edge e to G' unless it creates a cycle in G'
+	}
+
+PROOF OF ALGORITHM'S CORRECTNESS
+Goal: Show that G' derived by kruskal's algorithm is a minimum spanning tree.
+
+Lemma: Cut property
+presume that all edges in G have distinct weights.  Let e be the edge in G with the smallest weight l(e).  Then every MSP of G contains edge e.
+
+Proof: [by contradiction] suppose there is a MST (T) of G which does not contain the edge e' with the smallest weight.  This means that adding edge e' to T would yield a cycle C, ie T would no longer be a tree.
+Let edge e be another edge of C that connects a node in S with one in V/S where S is strictly contained in V, S is not the empty set, and S was chosen such that one endpoint of edge e' is in S and the other V/S.
+
+Let T' be the tree we obtain from T by replacing e with e', then:
+	T is again a tree as it has |V| = n nodes and |v|-1 edges and as it is connected
+	T' is a spanning tree as it contains |v| = n nodes
+	cost(T') < cost(T) as l(e') < l(e) because e' is the edge with smallest weight
+
+Then we have that T' would be a MST rather than T, but this is a contradiction with our starting assumption, and so T must contain edge e'.
+
+
+Theorem: Kruskal's algorithm derives a MST of G.
+
+Observation: The algorithm derives a subgraph without cycles.
+
+(a) let e = (v, w) denote the edge that is about to be added to G' by the algorithm and let S denote the set of nodes to which node v has a path (before edge e is added).
+then v in S but w not in S as we would otherwise be creating a cycle in adding e.
+As edge e is to be added next, it is the cheapest edge connecting S and V\S.  According to the lemma, we know that edge e belongs to any MST.

@@ -1,0 +1,59 @@
+
+
+Jan 3
+1.1 The Stable Matching Problem
+===============================
+
+Goal: given M Men and W women.  Each man ranks all women and every woman ranks all men.  We want to order the men and women into pairs such that:
+	1. every man and woman appears in exactly 1 pair
+	2. there is no pair of pairs (m, w) and (m', w') such that m prefers w' to w and w' prefers m to m'.  In that case it would be better to form the pair (m, w')
+
+Definitions:  /\/\ = { m_1, ... , m_M } set of men
+			  \/\/ = { w_1, ... , w_W } set of women
+
+			  then /\/\ x \/\/ = { (w, m), w in \/\/, m in /\/\ } set of all ordered pairs of man and women form /\/\ and \/\/.
+
+			  A maching J is a subset of \/\/x/\/\, and that every man m in /\/\ and every woman in \/\/ appear in at most one pair ( some may be unpaired ).
+
+			  A perfect matching J' is a subset of \/\/x/\/\ such that each w in \/\/ appears in exactly one pair.
+
+A pair (w',m) in \/\/x/\/\ is called an instability w.r.t a matching J if (w',m) is not in J but (w,m) and (w',m') are in J and yet m and w' prefer each other to their assigned partners.
+
+A matching S is stable if (a) it is perfect and (b) there is no instability w.r.t S.
+
+Goal: Given sets \/\/ and /\/\, find a stable matching.
+
+
+// ma algorithm: give every woman her first pick
+	// if two women have the same first pick, resolve by picking woman man prefers for that pair and give remainin woman her 2nd pick (and so on)
+	// if there is ever a situation where womanA wants a man as her ith pick and womanB wants the same man as her jth pick give to woman with higher preference, resolve tie with mans preference.
+
+her / Gale-Shapley Algorithm
+	let all m in /\/\ and w in \/\/ be free / unpaired
+	while there is a free woman that isn't paired to any man yet {
+
+		w takes the highest ranking man that isn't proprosed to yet (m) and checks state {
+			if ( he's already engaged ) { 
+				she just proposes
+			} else { 
+				if ( he prefers her m over his m' ) {
+					pair (m,w)
+					and put w' free
+				}
+		} 
+	}
+
+	pree sure its the same :>>
+
+In the problem there is symmetry w.r.t the men and women but our choice of algorithm introduces an asymmetry w.r.t the men and women.
+
+When a man changes pairs his pairing inproves for him.  Whereas for a woman it gets worse each time.
+
+
+
+Defining Patterns of an Algorithm
+	in a finite list of instructions
+	each instruction can be described properly (?)
+	arbitrarily form an initial state and initial input, the instructions describe a completion of a finite number of successive states eventually producing an output and terminating in a finish state.
+	each state only depends on the inputs and results of previous states
+	output is reached after a finite number of steps (no infinite loops)

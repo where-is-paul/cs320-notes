@@ -1,0 +1,118 @@
+6.1 (cont) Finding the Median
+
+Goal: Do better than O(nlogn) 
+
+Stragtegy: Devise an algorithm called select(S,k) where |S| = n and k in {1,...,n} to find the kth largest element in S.
+
+The algorithm:
+Select(S,k):
+	choose splitter ai
+	for each aj in S:
+		if (aj < ai): 
+			move aj to S-
+		else if (aj > ai)
+			move aj to S+
+
+	if |S-| = k-1:
+		ai is the desired kth element
+	else if |S-| >= k:
+		call Select(S-,k)
+	else:
+		call Select(S+, k-(l+1))			(where l = |S-|)
+
+Group work: 
+What does Select(S,1) retrieve?
+What about Select(S,n)?
+Why do we call Select(S, k-(l+1)) in the else clause?
+
+Asking for the k-th largest element in S is qual toasking for the k-(l+1)th element in S+ as we know n the else clause that |S-| = l and |S- union {ai}| = l+1 and S- union {ai} does not contain the kth largest element.
+
+Observations:
+- the algorithm terminates as it makes recursive calls to strictly smaller sub-sets.
+- If we chose the splitter element wisely, we reduce the original problem size by 50% at each iteration.  We would get a recurive relation:
+	T(n) <= 1 * T(n/2) + c * n, c in R
+
+This fits generic alg. No 1, hence O(n) time requirement.
+
+Idea 2. In the Select(S,k) alg. we choose the splitter a, uniformly at random from S.  Using this idea, every element in S has the same probability of being selected.
+
+Definition: Given a set S of n distinct elements, S = {a1, ..., an}.  We call an element ai in S central if: at least one quarter of the elements in S are smaller than ai, and likewie at least a quarter of the elements in S are larger than ai.
+
+Implications: As the Select algorithm is no longer deterministic, we can from now on only talk about expected running times.
+
+Definitions: 
+
+We will say the algorithm is in phase j if the problem size a we are dealing with is n(3/4)^(j+1) < z <= n(3/4)^(j).  (we expect the problem size to shrink by a factor of 3/4 or more at every iteration if we can expect the splitter to be central)
+
+Let X be a random variable that is equal to the number of recursions of the algorithm, ie.
+X = X0 + X1 + X2 + ... 
+where Xi denotes the expected number of steps that the alg spends in phase i.
+
+Observations:
+(1) at any phase j, the probability of choosing a central element splitter is 1/2.  So expect to have to make 2 iterations before the randomly chosen splitter will be central.
+(2) When the alg is in phase j, the problem size is at most n(3/4)^j. So we require at most c*n(4/3)^j steps (at every iteration?) in phase j for some constant c in R.
+
+(1)&(2) -> the expected number of steps of the alg. in phase j is:
+	E[Xj] <= 2*c*n(3/4)^j  where E is the expectation for Xj
+
+The expected total number of steps of the alg is (Sum over the phases):
+	E[X] = SUM_j=0 to m ( E[Xj] ) <= SUM_j=0 to m ( 2*c*n(3/4)^j ) = 2*c*n SUM_j=0 to m ((3/4)^j)
+	<= 2*c*n SUM_j=0 to inf ((3/4)^j) = 8*c*n.
+
+Conclusion: The expected running time of Select(S,k) is O(n) for |s|=n.
+
+
+6.2 Example: Sorting numbers
+Goal: Given a set S of distinct natural numbers, sort them.
+Devise a divide and conquer algorithm to solve the problem.
+
+Idea: Use same idea as in previous example, ie. divide input S according to a splitter into two susets, but kee considering both subsets rather than discarding one.  Once again we will choose the splitter in a uniformly random way from S.
+
+QuickSort(S):
+if |S|<=3:
+	Sort S and return answers
+else:
+	while no central splitter has been selected:
+		chose splitter ai in S uniformly at random.
+		for each element aj in S:
+			if (aj < ai):	
+				move aj to S-
+			else:
+				move aj to S+
+		if (|S-|>= |S|/4 and |S+|>= |S|/4):
+			// ai is a central splitter so we break while loop
+
+	call QuickSort(S-)
+	call QuickSort(S+)
+	return (sorted list S-, ai, sorted list S+)
+
+Observations:
+It takes O(|S|) = O(n) time to check if a splitter is central when dealig with set S.
+Because we expect to pick a central splitter after 2 iterations of the while-loop, the alg requires O(|S|) time, excluding time spend on recursive calls (ie. this is just time spent at the first step).
+
+Definition: We wil call a sub-problem of the alg to be of type j if the size z of the sub-problem is n(3/4)^j+1 < z <= n(3/4)^j.
+
+Observation 1: The expected time spend on a sub-problem of type j (excluding the recursive calls) is O(n(3/4)^j).
+
+Observation 2: Splitting a sub-problem of type j using a central splitter creates two disjoint subproblems of type j+1.
+
+Question: What is the total number of subproblems of type j that we may encounter?  Call this quantity X.
+
+Answer: (a) we have a problem of size n to start with.
+		(b) we know that the minimum size of a any problem of type j is n(3/4)^j+1 
+		(c) we know that this total probkem size remains n for different values of j.
+
+(a), (b) & (c) -> n = X*n*(3/4)^j+1 <-> X = (4/3)^j+1
+
+Question: what is the expected amount of time required to sort out all subproblems of type j?
+
+Answer: we already know that we:
+	have at most (4/3)^j+1 subproblems of type j
+	each sub-problem has a size of at most n(3/4)^j
+	the expected running time of the alg (excluding recursive calls) is linear in the set-size
+	-> for each subproblem of type j, require O(n(3/4)^j) expected time
+	so overall, for all subproblems of type j, require O((4/3)^j+1 * n * (3/4)^j) = O(4/3 * n) = O(n) time.
+
+	AS the overall problem remains n for all types j, require a total of O(log(n)) types.
+
+Conclusion: QuickSort(S) has O(nlogn) exp running time.
